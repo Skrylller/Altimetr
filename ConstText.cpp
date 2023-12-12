@@ -1,0 +1,2 @@
+namespace const_text{
+}
