@@ -1,5 +1,6 @@
 #include "updserver.h"
 #include "updclient.h"
+#include "heightindicatorwidget.h"
 
 #include <QApplication>
 
@@ -12,6 +13,9 @@ int main(int argc, char *argv[])
 
     UpdServer serverWindow;
     serverWindow.show();
+
+    HeightIndicatorWidget heightIndicator;
+    heightIndicator.show();
 
     return a.exec();
 }

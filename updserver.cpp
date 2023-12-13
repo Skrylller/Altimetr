@@ -26,6 +26,8 @@ UpdServer::UpdServer(QWidget *parent) : QWidget(parent)
     signalTimer = new QTimer(this);
     connect(signalTimer, SIGNAL(timeout()), this, SLOT(MessageToClient()));
     signalTimer->start(1000 / kSignalFrequency);
+
+    height = 0;
 }
 
 void UpdServer::UpdateUI()
