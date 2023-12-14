@@ -32,9 +32,11 @@ private:
 
     QUdpSocket* udpSoket;
     QTimer *signalTimer = nullptr;
+    QTimer *checkConnectionTimer = nullptr;
 
     int height;
     bool isConnect;
+    time_t lastConnectionTime;
 
     void UpdateUI();
 
@@ -44,5 +46,7 @@ private slots:
     void GetData();
 
     void SearchSliderMoved(int value);
+
+    void CheckConnection();
 };
 #endif // UPDSERVER_H

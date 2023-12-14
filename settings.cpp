@@ -3,13 +3,9 @@
 Settings::Settings(QObject *parrent) : QObject(parrent)
 {
     QSettings sett(kSettingsFile, QSettings::IniFormat);
-    sett.setValue("ADDRESS", "127.0.0.1");
-    sett.setValue("PORT", 8002);
-
 
     address = sett.value("ADDRESS", "127.0.0.1").toString();
     port = sett.value("PORT", 8002).toUInt();
-    qDebug() << sett.fileName();
 }
 
 QHostAddress Settings::GetAddress()
@@ -25,7 +21,6 @@ QHostAddress Settings::GetAddress()
         return QHostAddress(addressInt);
     }
 
-    qDebug() << "Неверно набран адрес.";
     return QHostAddress();
 }
 

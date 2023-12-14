@@ -4,8 +4,9 @@ UpdServer::UpdServer(Settings *settings, QWidget *parent) : QWidget(parent)
 {
     this->settings = settings;
     height = 0;
+    isConnect = false;
 
-    setGeometry(100, 300, 250, 150);
+    setGeometry(750, 100, 250, 150);
     setWindowTitle("Alimetr Server");
 
     connectionLabel = new QLabel(kConnectionToClientText + kNo, this);
@@ -30,8 +31,12 @@ UpdServer::UpdServer(Settings *settings, QWidget *parent) : QWidget(parent)
     connect(signalTimer, SIGNAL(timeout()), this, SLOT(MessageToClient()));
     signalTimer->start(1000 / kSignalFrequency);
 
+    checkConnectionTimer = new QTimer(this);
+    connect(checkConnectionTimer, SIGNAL(timeout()), this, SLOT(CheckConnection()));
+    checkConnectionTimer->start(1000);
+
     udpSoket = new QUdpSocket(this);
-    udpSoket->bind(settings->GetPort()+1);
+    udpSoket->bind(settings->GetPort());
     connect(udpSoket, &QUdpSocket::readyRead, this, [this]() { GetData(); });
 }
 
@@ -66,6 +71,8 @@ void UpdServer::GetData()
         isConnect = true;
         UpdateUI();
     }
+
+    lastConnectionTime = time(NULL);
 }
 
 void UpdServer::MessageToClient()
@@ -77,7 +84,7 @@ void UpdServer::MessageToClient()
     Message1 message(height);
     out << message;
 
-    udpSoket->writeDatagram(byteArray, settings->GetAddress(), settings->GetPort());
+    udpSoket->writeDatagram(byteArray, settings->GetAddress(), settings->GetPort() + 1);
 }
 
 void UpdServer::SearchSliderMoved(int value)
@@ -87,4 +94,12 @@ void UpdServer::SearchSliderMoved(int value)
 
     height = value;
     UpdateUI();
+}
+
+void UpdServer::CheckConnection()
+{
+    if(time(NULL) - lastConnectionTime >= kConnectDelay && isConnect == true){
+        isConnect = false;
+        UpdateUI();
+    }
 }

@@ -4,6 +4,7 @@
 #include "settings.h"
 
 #include <QApplication>
+#include <QWidget>
 
 int main(int argc, char *argv[])
 {
@@ -11,26 +12,30 @@ int main(int argc, char *argv[])
 
     Settings *settings = new Settings(&a);
 
+    QPoint point;
+    UpdClient *clientWindow;
+
+    UpdServer *serverWindow;
+
     bool isServer = true;
     bool isClient = true;
     if(argc > 1){
        if(*argv[1] == 's'){
            isClient = false;
        }
-       else if(*argv[1] == 's'){
+       else if(*argv[1] == 'c'){
            isServer = false;
        }
     }
 
     if(isClient){
-        UpdClient clientWindow(settings);
-        clientWindow.show();
+        clientWindow = new UpdClient(settings, a.widgetAt(point));
+        clientWindow->show();
     }
 
     if(isServer){
-        UpdServer serverWindow(settings);
-        serverWindow.show();
-
+        serverWindow = new UpdServer(settings, a.widgetAt(point));
+        serverWindow->show();
     }
 
     return a.exec();

@@ -3,11 +3,12 @@
 UpdClient::UpdClient(Settings *settings, QWidget *parent) : QWidget(parent)
 {
     this->settings = settings;
+    isConnect = false;
 
     setGeometry(100, 100, 600, 650);
     setWindowTitle("Alimetr Client");
 
-    connectionLabel = new QLabel(kConnectionToServerText + kNo, this);
+    connectionLabel = new QLabel(settings->GetAddress().toString() + kNo, this);
     heightLabel = new QLabel(kCurrentHeightText + "0", this);
     indicator = new  HeightIndicatorWidget(this);
 
@@ -30,22 +31,21 @@ UpdClient::UpdClient(Settings *settings, QWidget *parent) : QWidget(parent)
     checkConnectionTimer->start(1000);
 
     udpSoket = new QUdpSocket(this);
-    udpSoket->bind(settings->GetPort());
+    udpSoket->bind(settings->GetPort() + 1);
     connect(udpSoket, &QUdpSocket::readyRead, this, [this]() { GetData(); });
 }
 
 void UpdClient::UpdateUI()
 {
     if(isConnect)
-        connectionLabel->setText(kConnectionToServerText + kYes);
+        connectionLabel->setText(settings->GetAddress().toString() + kYes);
     else
-        connectionLabel->setText(kConnectionToServerText + kNo);
+        connectionLabel->setText(settings->GetAddress().toString() + kNo);
 }
 
 void UpdClient::GetData()
 {
     QByteArray datagram;
-
     do {
         datagram.resize(udpSoket->pendingDatagramSize());
         udpSoket->readDatagram(datagram.data(), datagram.size());
@@ -80,7 +80,7 @@ void UpdClient::MessageToServer()
     Message2 message;
     out << message;
 
-    udpSoket->writeDatagram(byteArray, settings->GetAddress(), settings->GetPort()+1);
+    udpSoket->writeDatagram(byteArray, settings->GetAddress(), settings->GetPort());
 }
 
 void UpdClient::CheckConnection()
