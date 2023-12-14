@@ -1,11 +1,14 @@
 #include "updserver.h"
 
-UpdServer::UpdServer(QWidget *parent) : QWidget(parent)
+UpdServer::UpdServer(Settings *settings, QWidget *parent) : QWidget(parent)
 {
-    resize(250, 150);
+    this->settings = settings;
+    height = 0;
+
+    setGeometry(100, 300, 250, 150);
     setWindowTitle("Alimetr Server");
 
-    connectionLabel = new QLabel(kConnectionToServerText + kNo, this);
+    connectionLabel = new QLabel(kConnectionToClientText + kNo, this);
     heightLabel = new QLabel(kCurrentHeightText + "0" + kPromptText, this);
 
     heightSlider = new QSlider(Qt::Horizontal, this);
@@ -27,12 +30,42 @@ UpdServer::UpdServer(QWidget *parent) : QWidget(parent)
     connect(signalTimer, SIGNAL(timeout()), this, SLOT(MessageToClient()));
     signalTimer->start(1000 / kSignalFrequency);
 
-    height = 0;
+    udpSoket = new QUdpSocket(this);
+    udpSoket->bind(settings->GetPort()+1);
+    connect(udpSoket, &QUdpSocket::readyRead, this, [this]() { GetData(); });
 }
 
 void UpdServer::UpdateUI()
 {
+    if(isConnect)
+        connectionLabel->setText(kConnectionToClientText + kYes);
+    else
+        connectionLabel->setText(kConnectionToClientText + kNo);
+
     heightLabel->setText(kCurrentHeightText + QString::number(height) + kPromptText);
+}
+
+void UpdServer::GetData()
+{
+    QByteArray datagram;
+    do {
+        datagram.resize(udpSoket->pendingDatagramSize());
+        udpSoket->readDatagram(datagram.data(), datagram.size());
+    } while(udpSoket->hasPendingDatagrams());
+
+    QDataStream in(&datagram, QIODevice::ReadOnly);
+    in.setVersion(QDataStream::Qt_4_0);
+
+    Message2 mes;
+    in >> mes;
+
+    if((qint16)mes.header != kMessage2Header)
+        return;
+
+    if(isConnect == false){
+        isConnect = true;
+        UpdateUI();
+    }
 }
 
 void UpdServer::MessageToClient()
@@ -41,9 +74,10 @@ void UpdServer::MessageToClient()
     QDataStream out(&byteArray, QIODevice::WriteOnly);
     out.setVersion(QDataStream::Qt_4_0);
 
-    out << height;
+    Message1 message(height);
+    out << message;
 
-    udpSoket->writeDatagram(byteArray, QHostAddress::LocalHost, 8001);
+    udpSoket->writeDatagram(byteArray, settings->GetAddress(), settings->GetPort());
 }
 
 void UpdServer::SearchSliderMoved(int value)

@@ -2,14 +2,18 @@
 #define CONSTTEXT_H
 
 #include <qstring.h>
+#include <QDataStream>
+int const kConnectDelay = 2;
 
-static int const kMinHeight = 0;
-static int const kMaxHeight = 9999;
+int const kMinHeight = 0;
+int const kMaxHeight = 9999;
 
-static QString const kConnectionToServerText = "Связь с сервером: ";
-static QString const kCurrentHeightText = "Текущая высота: ";
-static QString const kPromptText = " (Может изменяться от " + QString::number(kMinHeight) + " до " + QString::number(kMaxHeight) + " м)";
-static QString const kNo = "Нет";
-static QString const kYes = " Да";
+QString const kConnectionToServerText = "Связь с сервером: ";
+QString const kConnectionToClientText = "Связь с клиентом: ";
+QString const kCurrentHeightText = "Текущая высота: ";
+QString const kPromptText = " (Может изменяться от " + QString::number(kMinHeight) + " до " + QString::number(kMaxHeight) + " м)";
+QString const kNo = "Нет";
+QString const kYes = " Да";
 
 #endif // CONSTTEXT_H
+

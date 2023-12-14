@@ -10,16 +10,20 @@
 #include <QUdpSocket>
 #include <QByteArray>
 #include <QDataStream>
+#include <MessageStructs.h>
+#include <settings.h>
 
 class UpdServer: public QWidget
 {
     Q_OBJECT
 
 public:
-    UpdServer(QWidget *parent = nullptr);
+    UpdServer(Settings *settings, QWidget *parent = nullptr);
 
 private:
     int const kSignalFrequency = 25;
+
+    Settings *settings;
 
     QVBoxLayout *vBoxLayout;
     QLabel *connectionLabel;
@@ -36,6 +40,9 @@ private:
 
 private slots:
     void MessageToClient();
+
+    void GetData();
+
     void SearchSliderMoved(int value);
 };
 #endif // UPDSERVER_H

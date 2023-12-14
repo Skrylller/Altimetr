@@ -19,12 +19,15 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
     heightindicatorwidget.cpp \
     main.cpp \
+    settings.cpp \
     updclient.cpp \
     updserver.cpp
 
 HEADERS += \
     ConstValues.h \
+    MessageStructs.h \
     heightindicatorwidget.h \
+    settings.h \
     updclient.h \
     updserver.h
 

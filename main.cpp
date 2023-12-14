@@ -1,6 +1,7 @@
 #include "updserver.h"
 #include "updclient.h"
 #include "heightindicatorwidget.h"
+#include "settings.h"
 
 #include <QApplication>
 
@@ -8,14 +9,29 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
-    UpdClient clientWindow;
-    clientWindow.show();
+    Settings *settings = new Settings(&a);
 
-    UpdServer serverWindow;
-    serverWindow.show();
+    bool isServer = true;
+    bool isClient = true;
+    if(argc > 1){
+       if(*argv[1] == 's'){
+           isClient = false;
+       }
+       else if(*argv[1] == 's'){
+           isServer = false;
+       }
+    }
 
-    HeightIndicatorWidget heightIndicator;
-    heightIndicator.show();
+    if(isClient){
+        UpdClient clientWindow(settings);
+        clientWindow.show();
+    }
+
+    if(isServer){
+        UpdServer serverWindow(settings);
+        serverWindow.show();
+
+    }
 
     return a.exec();
 }

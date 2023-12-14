@@ -1,29 +1,49 @@
 #include "updclient.h"
 
-UpdClient::UpdClient(QWidget *parent) : QWidget(parent)
+UpdClient::UpdClient(Settings *settings, QWidget *parent) : QWidget(parent)
 {
-    resize(250, 150);
+    this->settings = settings;
+
+    setGeometry(100, 100, 600, 650);
     setWindowTitle("Alimetr Client");
 
     connectionLabel = new QLabel(kConnectionToServerText + kNo, this);
     heightLabel = new QLabel(kCurrentHeightText + "0", this);
+    indicator = new  HeightIndicatorWidget(this);
 
-    vBoxLayout = new QVBoxLayout(this);
-    vBoxLayout->addWidget(connectionLabel);
-    vBoxLayout->addWidget(heightLabel);
+    QWidget *topWidget = new QWidget(this);
+    QVBoxLayout *vTopBoxLayout = new QVBoxLayout(topWidget);
+    vTopBoxLayout->addWidget(connectionLabel);
+    vTopBoxLayout->addWidget(heightLabel);
+    topWidget->setFixedHeight(50);
 
-    signalTimer = new QTimer(this);
-    connect(signalTimer, SIGNAL(timeout()), this, SLOT(MessageToServer()));
-    signalTimer->start(1000 / kSignalFrequency);
+    QVBoxLayout *vAdditionalBoxLayout = new QVBoxLayout(this);
+    vAdditionalBoxLayout->addWidget(topWidget);
+    vAdditionalBoxLayout->addWidget(indicator);
+
+    sendMessageTimer = new QTimer(this);
+    connect(sendMessageTimer, SIGNAL(timeout()), this, SLOT(MessageToServer()));
+    sendMessageTimer->start(1000 / kSignalFrequency);
+
+    checkConnectionTimer = new QTimer(this);
+    connect(checkConnectionTimer, SIGNAL(timeout()), this, SLOT(CheckConnection()));
+    checkConnectionTimer->start(1000);
 
     udpSoket = new QUdpSocket(this);
-    udpSoket->bind(8001);
+    udpSoket->bind(settings->GetPort());
     connect(udpSoket, &QUdpSocket::readyRead, this, [this]() { GetData(); });
+}
+
+void UpdClient::UpdateUI()
+{
+    if(isConnect)
+        connectionLabel->setText(kConnectionToServerText + kYes);
+    else
+        connectionLabel->setText(kConnectionToServerText + kNo);
 }
 
 void UpdClient::GetData()
 {
-    int str;
     QByteArray datagram;
 
     do {
@@ -34,11 +54,41 @@ void UpdClient::GetData()
     QDataStream in(&datagram, QIODevice::ReadOnly);
     in.setVersion(QDataStream::Qt_4_0);
 
-    in >> str;
-    heightLabel->setText(kCurrentHeightText + QString::number(str));
+    Message1 mes;
+    in >> mes;
+
+    if((qint16)mes.header != kMessage1Header)
+        return;
+
+    heightLabel->setText(kCurrentHeightText + QString::number(mes.height));
+    indicator->setHeight(mes.height);
+
+    if(isConnect == false){
+        isConnect = true;
+        UpdateUI();
+    }
+
+    lastConnectionTime = time(NULL);
 }
 
 void UpdClient::MessageToServer()
 {
+    QByteArray byteArray;
+    QDataStream out(&byteArray, QIODevice::WriteOnly);
+    out.setVersion(QDataStream::Qt_4_0);
+
+    Message2 message;
+    out << message;
+
+    udpSoket->writeDatagram(byteArray, settings->GetAddress(), settings->GetPort()+1);
 }
+
+void UpdClient::CheckConnection()
+{
+    if(time(NULL) - lastConnectionTime >= kConnectDelay && isConnect == true){
+        isConnect = false;
+        UpdateUI();
+    }
+}
+
 

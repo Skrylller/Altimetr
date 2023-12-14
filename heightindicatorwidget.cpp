@@ -2,8 +2,7 @@
 
 HeightIndicatorWidget::HeightIndicatorWidget(QWidget* parent) : QWidget(parent)
 {
-    setGeometry(100, 100, 300, 200);
-    resize(600, 600);
+    setGeometry(100, 100, 600, 600);
     setHeight(0);
 }
 
@@ -101,29 +100,32 @@ void HeightIndicatorWidget::paintEvent(QPaintEvent *event)
     painter.setBrush(QColor(255,255,255));
 
     static const QPoint thousandHand[5] = {
-        QPoint(4, 8),
-        QPoint(-4, 8),
+        QPoint(4, 5),
+        QPoint(-4, 5),
         QPoint(-8, -(float)kThousandArrowRadius * 0.60),
         QPoint(0, -(float)kThousandArrowRadius * 0.95),
         QPoint(8, -(float)kThousandArrowRadius * 0.60),
     };
 
     static const QPoint hundredHand[5] = {
-        QPoint(5, 8),
-        QPoint(-5, 8),
+        QPoint(5, 5),
+        QPoint(-5, 5),
         QPoint(-5, -(float)kHundredArrowRadius * 0.80),
         QPoint(0, -(float)kHundredArrowRadius * 0.95),
         QPoint(5, -(float)kHundredArrowRadius * 0.80),
     };
 
-    painter.save();
-    painter.rotate(180);
-    painter.drawConvexPolygon(thousandHand, 5);
-    painter.restore();
+    int numValues = (kMaxHeight - kMinHeight + 1);
+    if(numValues != 0){
+        painter.save();
+        painter.rotate(360 / (float)numValues * m_height);
+        painter.drawConvexPolygon(thousandHand, 5);
+        painter.restore();
 
-    painter.rotate(90);
-    painter.drawConvexPolygon(hundredHand, 5);
-    painter.restore();
+        painter.rotate(360 / (float)1000 * (m_height % 1000));
+        painter.drawConvexPolygon(hundredHand, 5);
+        painter.restore();
+    }
 
     //рисуем панель с текстом в центре
     int rectWidth = (float)fontHeight * 0.8 * std::to_string(kMaxHeight).length() + 4;
@@ -131,5 +133,5 @@ void HeightIndicatorWidget::paintEvent(QPaintEvent *event)
     QRect heightTextRect(-(float)rectWidth / 2, -(float)rectHeight / 2, rectWidth, rectHeight);
     painter.fillRect(heightTextRect, Qt::black);
     painter.drawRect(heightTextRect);
-    painter.drawText(heightTextRect, Qt::AlignCenter, QString::number(4444));
+    painter.drawText(heightTextRect, Qt::AlignCenter, QString::number(m_height));
 }
