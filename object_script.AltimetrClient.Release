@@ -1,0 +1,10 @@
+release/heightindicatorwidget.o
+release/main.o
+release/settings.o
+release/updclient.o
+release/updserver.o
+release/updwidget.o
+release/moc_heightindicatorwidget.o
+release/moc_updclient.o
+release/moc_updserver.o
+release/moc_updwidget.o

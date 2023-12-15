@@ -1,0 +1,10 @@
+debug/heightindicatorwidget.o
+debug/main.o
+debug/settings.o
+debug/updclient.o
+debug/updserver.o
+debug/updwidget.o
+debug/moc_heightindicatorwidget.o
+debug/moc_updclient.o
+debug/moc_updserver.o
+debug/moc_updwidget.o
