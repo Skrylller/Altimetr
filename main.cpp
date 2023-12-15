@@ -6,6 +6,11 @@
 #include <QApplication>
 #include <QWidget>
 
+/*
+ * Принимает на вход параметр c или s,
+ * параметром устанавливается какое окно будет создано,
+ * если параметров нет, то создадутся оба окна.
+ * */
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);

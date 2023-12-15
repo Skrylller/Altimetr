@@ -21,7 +21,8 @@ SOURCES += \
     main.cpp \
     settings.cpp \
     updclient.cpp \
-    updserver.cpp
+    updserver.cpp \
+    updwidget.cpp
 
 HEADERS += \
     ConstValues.h \
@@ -29,7 +30,8 @@ HEADERS += \
     heightindicatorwidget.h \
     settings.h \
     updclient.h \
-    updserver.h
+    updserver.h \
+    updwidget.h
 
 FORMS +=
 

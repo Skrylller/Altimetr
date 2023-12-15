@@ -1,10 +1,8 @@
 #include "updserver.h"
 
-UpdServer::UpdServer(Settings *settings, QWidget *parent) : QWidget(parent)
+UpdServer::UpdServer(Settings *settings, QWidget *parent) : UpdWidget(settings, parent)
 {
-    this->settings = settings;
     height = 0;
-    isConnect = false;
 
     setGeometry(750, 100, 250, 150);
     setWindowTitle("Alimetr Server");
@@ -23,21 +21,11 @@ UpdServer::UpdServer(Settings *settings, QWidget *parent) : QWidget(parent)
     vBoxLayout->addWidget(heightLabel);
     vBoxLayout->addWidget(heightSlider);
 
+    //подключаем updSoket к порту
+    udpSoket->bind(settings->getPortServer());
 
-    udpSoket = new QUdpSocket(this);
-    MessageToClient();
-
-    signalTimer = new QTimer(this);
-    connect(signalTimer, SIGNAL(timeout()), this, SLOT(MessageToClient()));
-    signalTimer->start(1000 / kSignalFrequency);
-
-    checkConnectionTimer = new QTimer(this);
-    connect(checkConnectionTimer, SIGNAL(timeout()), this, SLOT(CheckConnection()));
-    checkConnectionTimer->start(1000);
-
-    udpSoket = new QUdpSocket(this);
-    udpSoket->bind(settings->GetPort());
-    connect(udpSoket, &QUdpSocket::readyRead, this, [this]() { GetData(); });
+    //подключаем updSoket к порту
+    messageTimer->start(1000 / kSignalFrequency);
 }
 
 void UpdServer::UpdateUI()
@@ -75,7 +63,7 @@ void UpdServer::GetData()
     lastConnectionTime = time(NULL);
 }
 
-void UpdServer::MessageToClient()
+void UpdServer::Message()
 {
     QByteArray byteArray;
     QDataStream out(&byteArray, QIODevice::WriteOnly);
@@ -84,7 +72,7 @@ void UpdServer::MessageToClient()
     Message1 message(height);
     out << message;
 
-    udpSoket->writeDatagram(byteArray, settings->GetAddress(), settings->GetPort() + 1);
+    udpSoket->writeDatagram(byteArray, settings->GetAddressClient(), settings->getPortClient());
 }
 
 void UpdServer::SearchSliderMoved(int value)
@@ -94,12 +82,4 @@ void UpdServer::SearchSliderMoved(int value)
 
     height = value;
     UpdateUI();
-}
-
-void UpdServer::CheckConnection()
-{
-    if(time(NULL) - lastConnectionTime >= kConnectDelay && isConnect == true){
-        isConnect = false;
-        UpdateUI();
-    }
 }

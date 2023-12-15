@@ -1,19 +1,15 @@
 #ifndef UPDCLIENT_H
 #define UPDCLIENT_H
 
-#include <QWidget>
 #include <QLabel>
 #include <QBoxLayout>
-#include <ConstValues.h>
-#include <QTimer>
-#include <QUdpSocket>
 #include <QByteArray>
 #include <QDataStream>
 #include <heightindicatorwidget.h>
 #include <MessageStructs.h>
-#include <settings.h>
+#include <updwidget.h>
 
-class UpdClient : public QWidget
+class UpdClient : public UpdWidget
 {
     Q_OBJECT
 
@@ -23,28 +19,18 @@ public:
 private:
     int const kSignalFrequency = 2;
 
-    Settings *settings;
-
     QLabel *connectionLabel;
     QLabel *heightLabel;
     HeightIndicatorWidget *indicator;
 
-    QUdpSocket* udpSoket;
-    QTimer *sendMessageTimer = nullptr;
-    QTimer *checkConnectionTimer = nullptr;
-
     int height;
-    bool isConnect;
-    time_t lastConnectionTime;
 
-    void UpdateUI();
+    void UpdateUI() override;
 
 private slots:
-    void MessageToServer();
+    void Message() override;
 
-    void GetData();
-
-    void CheckConnection();
+    void GetData() override;
 
 };
 #endif // UPDCLIENT_H

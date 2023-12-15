@@ -1,19 +1,15 @@
 #ifndef UPDSERVER_H
 #define UPDSERVER_H
 
-#include <QWidget>
 #include <QLabel>
 #include <QBoxLayout>
-#include <ConstValues.h>
 #include <QSlider>
-#include <QTimer>
-#include <QUdpSocket>
 #include <QByteArray>
 #include <QDataStream>
 #include <MessageStructs.h>
-#include <settings.h>
+#include <updwidget.h>
 
-class UpdServer: public QWidget
+class UpdServer: public UpdWidget
 {
     Q_OBJECT
 
@@ -23,30 +19,20 @@ public:
 private:
     int const kSignalFrequency = 25;
 
-    Settings *settings;
-
     QVBoxLayout *vBoxLayout;
     QLabel *connectionLabel;
     QLabel *heightLabel;
     QSlider *heightSlider;
 
-    QUdpSocket* udpSoket;
-    QTimer *signalTimer = nullptr;
-    QTimer *checkConnectionTimer = nullptr;
-
     int height;
-    bool isConnect;
-    time_t lastConnectionTime;
 
-    void UpdateUI();
+    void UpdateUI() override;
 
 private slots:
-    void MessageToClient();
+    void Message() override;
 
-    void GetData();
+    void GetData() override;
 
     void SearchSliderMoved(int value);
-
-    void CheckConnection();
 };
 #endif // UPDSERVER_H
